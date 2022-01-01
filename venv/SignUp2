@@ -1,0 +1,12 @@
+from flask import Flask
+from flask import request
+from flask import render_template
+from flask import redirect, url_for
+
+@app.route('/postmethod', methods = ['POST'])
+def postmethod():
+    data = request.get_json()
+    print data
+    return jsonify(data)
+
+

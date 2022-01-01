@@ -1,0 +1,141 @@
+<html>
+<head>
+<title>Sign Up.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #6a8759;}
+.s3 { color: #6897bb;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+Sign Up.py</font>
+</center></td></tr></table>
+<pre><span class="s0">from </span><span class="s1">flask </span><span class="s0">import </span><span class="s1">Flask</span><span class="s0">,</span><span class="s1">render_template</span><span class="s0">, </span><span class="s1">redirect</span><span class="s0">, </span><span class="s1">url_for</span><span class="s0">,</span><span class="s1">session</span><span class="s0">,</span><span class="s1">request</span>
+<span class="s0">from </span><span class="s1">flask_mysqldb </span><span class="s0">import </span><span class="s1">MySQL</span>
+<span class="s0">import </span><span class="s1">mysql.connector</span>
+<span class="s0">import </span><span class="s1">MySQLdb</span>
+<span class="s0">import </span><span class="s1">smtplib</span>
+<span class="s0">import </span><span class="s1">uuid</span>
+<span class="s0">import </span><span class="s1">urllib</span>
+<span class="s0">from </span><span class="s1">urllib.parse </span><span class="s0">import </span><span class="s1">urlparse</span>
+<span class="s0">from </span><span class="s1">urllib.parse </span><span class="s0">import </span><span class="s1">parse_qs</span>
+
+
+<span class="s1">app = Flask(__name__)</span>
+<span class="s1">app.secret_key = </span><span class="s2">&quot;123123&quot;</span>
+<span class="s1">app.config[</span><span class="s2">&quot;MYSQL_Host&quot;</span><span class="s1">] = </span><span class="s2">&quot;127.0.0.1&quot;</span>
+<span class="s1">app.config[</span><span class="s2">&quot;MYSQL_User&quot;</span><span class="s1">] = </span><span class="s2">&quot;root&quot;</span>
+<span class="s1">app.config[</span><span class="s2">&quot;MYSQL_Password&quot;</span><span class="s1">] = </span><span class="s2">&quot;Hemanth1234&quot;</span>
+<span class="s1">app.config[</span><span class="s2">&quot;MYSQL_DB &quot;</span><span class="s1">] = </span><span class="s2">&quot;login&quot;</span>
+<span class="s1">port = </span><span class="s3">465</span>
+<span class="s1">db = MySQL(app)</span>
+<span class="s1">@app.route(</span><span class="s2">'/'</span><span class="s0">, </span><span class="s1">methods = [</span><span class="s2">'GET'</span><span class="s0">, </span><span class="s2">'POST'</span><span class="s1">])</span>
+<span class="s0">def </span><span class="s1">index():</span>
+    <span class="s0">if </span><span class="s1">request.method == </span><span class="s2">&quot;POST&quot;</span><span class="s1">:</span>
+        <span class="s0">if </span><span class="s2">'username' </span><span class="s0">in </span><span class="s1">request.form </span><span class="s0">and </span><span class="s2">'password' </span><span class="s0">in </span><span class="s1">request.form:</span>
+            <span class="s1">username = request.form[</span><span class="s2">'username'</span><span class="s1">]</span>
+            <span class="s1">password = request.form[</span><span class="s2">'password'</span><span class="s1">]</span>
+            <span class="s1">db=mysql.connector.connect(user=</span><span class="s2">'root'</span><span class="s0">, </span><span class="s1">password=</span><span class="s2">'Hemanth1234'</span><span class="s0">,</span>
+                                       <span class="s1">host=</span><span class="s2">'127.0.0.1'</span><span class="s0">,</span>
+                                       <span class="s1">database=</span><span class="s2">'login'</span><span class="s1">)</span>
+            <span class="s1">cursor = db.cursor(MySQLdb.cursors.DictCursor)</span>
+            <span class="s1">cursor.execute(</span><span class="s2">&quot;SELECT email,password FROM logininfo WHERE email = %s AND password = %s&quot;</span><span class="s0">,</span><span class="s1">(username</span><span class="s0">,</span><span class="s1">password))</span>
+            <span class="s1">info = cursor.fetchone()</span>
+            <span class="s0">if </span><span class="s1">info </span><span class="s0">is not None and </span><span class="s1">info[</span><span class="s3">0</span><span class="s1">] == username </span><span class="s0">and </span><span class="s1">info[</span><span class="s3">1</span><span class="s1">] == password:</span>
+                <span class="s0">return </span><span class="s1">render_template(</span><span class="s2">&quot;Login Succesful.html&quot;</span><span class="s1">)</span>
+            <span class="s0">else</span><span class="s1">:</span>
+                <span class="s0">return </span><span class="s1">render_template(</span><span class="s2">&quot;Login Unsuccesful.html&quot;</span><span class="s1">)</span>
+    <span class="s0">return </span><span class="s1">render_template(</span><span class="s2">&quot;Login2.html&quot;</span><span class="s1">)</span>
+<span class="s1">@app.route(</span><span class="s2">'/reset'</span><span class="s0">, </span><span class="s1">methods = [</span><span class="s2">'GET'</span><span class="s0">,</span><span class="s2">'POST'</span><span class="s1">])</span>
+<span class="s0">def </span><span class="s1">reset():</span>
+    <span class="s0">if </span><span class="s1">request.method == </span><span class="s2">&quot;POST&quot;</span><span class="s1">:</span>
+        <span class="s0">if </span><span class="s2">'password' </span><span class="s0">in </span><span class="s1">request.form </span><span class="s0">and </span><span class="s2">'passResetID' </span><span class="s0">in </span><span class="s1">request.form:</span>
+            <span class="s1">password = request.form[</span><span class="s2">'password'</span><span class="s1">]</span>
+            <span class="s1">uuid = request.form[</span><span class="s2">'passResetID'</span><span class="s1">]</span>
+            <span class="s1">db=mysql.connector.connect(user=</span><span class="s2">'root'</span><span class="s0">, </span><span class="s1">password=</span><span class="s2">'Hemanth1234'</span><span class="s0">,</span>
+                                       <span class="s1">host=</span><span class="s2">'127.0.0.1'</span><span class="s0">,</span>
+                                       <span class="s1">database=</span><span class="s2">'login'</span><span class="s1">)</span>
+            <span class="s1">cur = db.cursor(MySQLdb.cursors.DictCursor)</span>
+            <span class="s1">cur.execute(</span><span class="s2">&quot;SELECT uuid FROM logininfo WHERE uuid =%s&quot;</span><span class="s0">,</span><span class="s1">(uuid</span><span class="s0">,</span><span class="s1">))</span>
+            <span class="s1">info = cur.fetchone()</span>
+            <span class="s0">if </span><span class="s1">info </span><span class="s0">is not None</span><span class="s1">:</span>
+                <span class="s1">cur.execute(</span><span class="s2">&quot;UPDATE logininfo SET password =%s , uuid = null WHERE uuid =%s&quot;</span><span class="s0">,</span><span class="s1">(password</span><span class="s0">,</span><span class="s1">uuid))</span>
+                <span class="s1">db.commit()</span>
+                <span class="s0">return </span><span class="s1">redirect(url_for(</span><span class="s2">'index'</span><span class="s1">))</span>
+    <span class="s0">if </span><span class="s1">request.method == </span><span class="s2">&quot;GET&quot;</span><span class="s1">:</span>
+        <span class="s1">qs = request.query_string</span>
+        <span class="s1">str = qs.decode(</span><span class="s2">&quot;utf-8&quot;</span><span class="s1">)</span>
+        <span class="s1">keyvalues = str.split(</span><span class="s2">'='</span><span class="s1">)</span>
+        <span class="s1">passreset=keyvalues[</span><span class="s3">1</span><span class="s1">]</span>
+        <span class="s0">return </span><span class="s1">render_template(</span><span class="s2">&quot;PasswordReset.html&quot;</span><span class="s0">,</span><span class="s1">passResetID= passreset)</span>
+
+
+
+
+
+
+<span class="s1">@app.route(</span><span class="s2">'/register'</span><span class="s0">, </span><span class="s1">methods =  [</span><span class="s2">'GET'</span><span class="s0">, </span><span class="s2">'POST'</span><span class="s1">])</span>
+<span class="s0">def </span><span class="s1">sign_up():</span>
+    <span class="s0">if </span><span class="s1">request.method == </span><span class="s2">&quot;POST&quot;</span><span class="s1">:</span>
+        <span class="s0">if </span><span class="s2">&quot;one&quot; </span><span class="s0">in </span><span class="s1">request.form </span><span class="s0">and </span><span class="s2">'two' </span><span class="s0">in </span><span class="s1">request.form </span><span class="s0">and </span><span class="s2">&quot;three&quot; </span><span class="s0">in </span><span class="s1">request.form:</span>
+            <span class="s1">name = request.form[</span><span class="s2">'one'</span><span class="s1">]</span>
+            <span class="s1">email = request.form[</span><span class="s2">'two'</span><span class="s1">]</span>
+            <span class="s1">password = request.form[</span><span class="s2">'three'</span><span class="s1">]</span>
+            <span class="s1">db=mysql.connector.connect(user=</span><span class="s2">'root'</span><span class="s0">, </span><span class="s1">password=</span><span class="s2">'Hemanth1234'</span><span class="s0">,</span>
+                                       <span class="s1">host=</span><span class="s2">'127.0.0.1'</span><span class="s0">,</span>
+                                       <span class="s1">database=</span><span class="s2">'login'</span><span class="s1">)</span>
+            <span class="s1">cur = db.cursor(MySQLdb.cursors.DictCursor)</span>
+            <span class="s1">cur.execute(</span><span class="s2">&quot;SELECT email FROM logininfo WHERE email = %s&quot;</span><span class="s0">,</span><span class="s1">(email</span><span class="s0">,</span><span class="s1">))</span>
+            <span class="s1">info = cur.fetchone()</span>
+            <span class="s0">if </span><span class="s1">info </span><span class="s0">is not None</span><span class="s1">:</span>
+                <span class="s0">return </span><span class="s1">render_template(</span><span class="s2">&quot;Login Unsuccesful.html&quot;</span><span class="s1">)</span>
+            <span class="s0">else</span><span class="s1">:</span>
+                <span class="s1">cur.execute(</span><span class="s2">&quot;INSERT INTO login.logininfo(name, email,password)VALUES(%s,%s,%s ) &quot;</span><span class="s0">,</span><span class="s1">(name</span><span class="s0">,</span><span class="s1">email</span><span class="s0">,</span><span class="s1">password))</span>
+
+                <span class="s1">db.commit()</span>
+                <span class="s0">return </span><span class="s1">redirect(url_for(</span><span class="s2">'index'</span><span class="s1">))</span>
+    <span class="s0">return </span><span class="s1">render_template(</span><span class="s2">&quot;Register.html&quot;</span><span class="s1">)</span>
+<span class="s1">@app.route(</span><span class="s2">'/forgotpassword'</span><span class="s0">, </span><span class="s1">methods = [</span><span class="s2">'GET'</span><span class="s0">,</span><span class="s2">'POST'</span><span class="s1">])</span>
+<span class="s0">def </span><span class="s1">forgot_password():</span>
+    <span class="s0">if </span><span class="s1">request.method == </span><span class="s2">&quot;POST&quot;</span><span class="s1">:</span>
+        <span class="s0">if </span><span class="s2">&quot;email&quot; </span><span class="s0">in </span><span class="s1">request.form:</span>
+            <span class="s1">email = request.form[</span><span class="s2">'email'</span><span class="s1">]</span>
+            <span class="s1">db=mysql.connector.connect(user=</span><span class="s2">'root'</span><span class="s0">, </span><span class="s1">password=</span><span class="s2">'Hemanth1234'</span><span class="s0">,</span>
+                               <span class="s1">host=</span><span class="s2">'127.0.0.1'</span><span class="s0">,</span>
+                               <span class="s1">database=</span><span class="s2">'login'</span><span class="s1">)</span>
+            <span class="s1">cur = db.cursor(MySQLdb.cursors.DictCursor)</span>
+            <span class="s1">cur.execute(</span><span class="s2">&quot;SELECT email FROM logininfo WHERE email = %s&quot;</span><span class="s0">,</span><span class="s1">(email</span><span class="s0">,</span><span class="s1">))</span>
+            <span class="s1">info = cur.fetchone()</span>
+            <span class="s0">if </span><span class="s1">info </span><span class="s0">is not None</span><span class="s1">:</span>
+                <span class="s1">passResetID = uuid.uuid4().hex</span>
+                <span class="s1">resetLink = </span><span class="s2">&quot;Reset Your Password Here: http://127.0.0.1:5000/reset?passResetID=&quot; </span><span class="s1">+ passResetID</span>
+                <span class="s1">cur.execute(</span><span class="s2">&quot;UPDATE logininfo SET uuid =%s WHERE email = %s&quot;</span><span class="s0">,</span><span class="s1">(passResetID</span><span class="s0">,</span><span class="s1">email))</span>
+                <span class="s1">db.commit()</span>
+                <span class="s1">server = smtplib.SMTP(</span><span class="s2">'smtp.gmail.com:587'</span><span class="s1">)</span>
+                <span class="s1">server.ehlo()</span>
+                <span class="s1">server.starttls()</span>
+                <span class="s1">server.login(</span><span class="s2">'plantflask@gmail.com'</span><span class="s0">,</span><span class="s2">'ORGAIN20'</span><span class="s1">)</span>
+                <span class="s1">message = </span><span class="s2">'subject: {}</span><span class="s0">\n\n</span><span class="s2">{}' </span><span class="s1">.format(</span><span class="s2">'Password Reset'</span><span class="s0">,</span><span class="s1">resetLink)</span>
+                <span class="s1">server.sendmail(</span><span class="s2">&quot;plantflask@gmail.com&quot;</span><span class="s0">, </span><span class="s1">email</span><span class="s0">, </span><span class="s1">message)</span>
+                <span class="s1">server.quit()</span>
+
+
+                <span class="s0">return </span><span class="s1">render_template(</span><span class="s2">&quot;Login2.html&quot;</span><span class="s1">)</span>
+
+            <span class="s0">else</span><span class="s1">:</span>
+                <span class="s0">return </span><span class="s1">redirect(url_for(</span><span class="s2">'Login Unsuccesful.html'</span><span class="s1">))</span>
+
+
+    <span class="s0">return </span><span class="s1">render_template(</span><span class="s2">&quot;ForgotPassword.html&quot;</span><span class="s1">)</span>
+
+
+
+<span class="s0">if </span><span class="s1">__name__ == </span><span class="s2">'__main__'</span><span class="s1">:</span>
+    <span class="s1">app.run(debug=</span><span class="s0">True</span><span class="s1">)</span></pre>
+</body>
+</html>
